@@ -1,5 +1,8 @@
 package mqtest.mqtest.sender;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -39,7 +42,7 @@ public class Sender {
 
 			session = connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE);
 
-			destination = session.createQueue("FirstQueue");
+			destination = session.createQueue("SendQueue");
 
 			producer = session.createProducer(destination);
 
@@ -47,8 +50,8 @@ public class Sender {
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
 			sendMessage(session, producer);
-
-			session.commit();
+			while (true) {
+			}
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -66,18 +69,27 @@ public class Sender {
 	}
 
 	private static void sendMessage(Session session, MessageProducer producer) {
-		for (int i = 0; i < SEND_NUMBER; i++) {
-			try {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
 
-				TextMessage message = session.createTextMessage("你好！！！" + i);
+			@Override
+			public void run() {
+				try {
 
-				System.out.println("发送消息你好！！！" + i);
-				producer.send(message);
-				
-			} catch (JMSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					String str = "你好！！！" + System.currentTimeMillis();
+
+					TextMessage message = session.createTextMessage(str);
+
+					System.out.println(str);
+					producer.send(message);
+
+					session.commit();
+				} catch (JMSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-		}
+		}, 1000,60000);
+
 	}
 }

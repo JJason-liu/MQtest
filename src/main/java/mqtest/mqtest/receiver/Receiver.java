@@ -38,7 +38,7 @@ public class Receiver {
 			//获取操作连接
 			session = connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
 			
-			destination = session.createQueue("FirstQueue");
+			destination = session.createQueue("SendQueue");
 			
 			consumer = session.createConsumer(destination);
 			
